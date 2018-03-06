@@ -1,0 +1,44 @@
+<!doctype html>
+{% extends "page/base.html" %}
+{% block title %}{{ category.name }}{% endblock %}
+{% block main %}
+  <h2>{{ category.name }}</h2>
+  <table>
+    <tr>
+	  <th>Название</th>
+	  <th>Есть в наличии</th>
+	</tr>
+	{% for good in goods %}
+	  <tr>
+	    <td><a href="{% url "good" good_id=good.id %}?page={{goods.number}}">{{ good.name }}</a></td>
+		<td class="centered">{% if good.in_stock %}+{% endif %}</td>
+	  </tr>
+    {% endfor %}
+  </table>
+  {% if goods.paginator.num_pages > 1 %}   <!-- если количество страниц >1 -->
+    <div id="pagination">
+	  {% if goods.has_previous %}          <!-- True, если предыдущая страница существует -->
+	    <div id="previous-page"><a href="?page={{goods.previous_page_number}}">
+		&lArr;</a></div>
+	  {% endif %}
+	  {% if goods.has_next %}              <!-- True, если следущая страница существует -->
+	    <div id="next-page"><a href="?page={{ goods.next_page_number }}">
+		&rArr;</a></div>
+      {% endif %}
+	  <div id="num_pages">
+	    {% for pn in goods.paginator.page_range %}   <!-- возвр список, №получ страниц -->
+          {% if not forloop.first %}                 <!-- True, если это первая итерация -->
+            &nbsp; &nbsp;| &nbsp; &nbsp;
+          {% endif %}
+          {% if goods.number != pn %}                <!-- если номер данной страницы.. -->
+            <a href="{% url "index" cat_id=category.pk %}?page={{ pn }}">
+          {% endif %}
+            {{ pn }}
+          	{% if goods.number != pn %}
+            </a>
+          {% endif %}		
+        {% endfor %}
+	  </div>
+    </div>
+  {% endif %}
+{% endblock%}
