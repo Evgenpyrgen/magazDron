@@ -1,31 +1,35 @@
+from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 from .models import Category, Good
 from django.core.paginator import Paginator, InvalidPage
-from django.views.generic.base import TemplateView
 
-class GoodListView(TemplateView):
+class GoodListView(ListView):
     template_name = "page/index.html"
+    paginate_by = 10
+    cat = None
+    paginate_by = 4
     
+    def get(self, request, *args, **kwargs):
+        if self.kwargs["cat_id"]  == None:
+            self.cat = Category.objects.first()
+        else:
+            self.cat = Category.objects.get(pk = self.kwargs["cat_id"])
+        return super(GoodListView, self).get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(GoodListView, self).get_context_data(**kwargs)
-        try:
-            page_num = self.request.GET["page"]
-        except KeyError:
-            page_num = 1
         context["cats"] = Category.objects.order_by("name")
-        if kwargs["cat_id"] == None:
-            context["category"] = Category.objects.first()
-        else:
-            context["category"] = Category.objects.get(pk = kwargs["cat_id"])
-        paginator = Paginator(Good.objects.filter(category = 
-                                                  context["category"]).order_by("name"), 2)
-        try:
-            context["goods"] = paginator.page(page_num)
-        except InvalidPage:
-            context["goods"] = paginator.page(1)
+        context["category"] = self.cat
         return context
 
-class GoodDetailView(TemplateView):
+    def get_queryset(self):
+        return Good.objects.filter(category = self.cat).order_by("name")
+
+class GoodDetailView(DetailView):
     template_name = "page/good.html"
+    model = Good
+    pk_url_kwarg = "good_id"
+    
 
     def get_context_data(self, **kwargs):
         context = super(GoodDetailView, self).get_context_data(**kwargs)
@@ -34,8 +38,4 @@ class GoodDetailView(TemplateView):
         except KeyError:
             context["pn"] = "1"
         context["cats"] = Category.objects.order_by("name")
-        try:
-            context["good"] = Good.objects.get(pk = kwargs["good_id"])
-        except Good.DoesNotExist:
-            raise Http404
         return context

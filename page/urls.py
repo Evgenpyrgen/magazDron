@@ -2,6 +2,7 @@ from django.urls import  path
 #from page import views
 from page.twviews import GoodListView, GoodDetailView
 
+
 urlpatterns = [
     path("", GoodListView.as_view(), name = "index"),
     path("<int:cat_id>/", GoodListView.as_view(), name = "index"),
