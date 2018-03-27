@@ -86,7 +86,7 @@ class GoodCreate(CreateView, GoodEditMixin):
                                                    self.kwargs["cat_id"])
         return context
 
-class GoodUpdate(UpdateView, GoodEditMixin, GoodListView):
+class GoodUpdate(UpdateView, GoodEditMixin):
     model = Good
     fields = ('name', 'description', 'category', 'in_stock',)
     template_name = "page/good_edit.html"
@@ -105,7 +105,8 @@ class GoodDelete(DeleteView, GoodEditMixin, GoodEditView):
         self.success_url = reverse("index", kwargs =
                     {"cat_id": Good.objects.get(pk = kwargs["good_id"]).category.id})
         return super(GoodDelete, self).post(request, *args, **kwargs)
+    """
     def get_context_data(self, **kwargs):
         context = super(GoodDelete, self).get_context_data(**kwargs)
         context["good"] = Good.objects.get(pk = kwargs["good_id"])
-        return context
+        return context"""
